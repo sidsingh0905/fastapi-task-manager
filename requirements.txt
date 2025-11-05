@@ -7,3 +7,4 @@ pydantic-settings
 gunicorn
 jinja2
 python-multipart
+flake8

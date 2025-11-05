@@ -5,6 +5,7 @@ from app.db.database import Base, engine
 
 app = FastAPI(title="Task Manager API")
 
+
 @app.on_event("startup")
 def on_startup():
     inspector = inspect(engine)
@@ -22,8 +23,10 @@ def on_startup():
     else:
         print("✅ All tables already exist, skipping creation.")
 
+
 # Include routers
 app.include_router(routes_tasks.router)
+
 
 @app.get("/")
 def root():

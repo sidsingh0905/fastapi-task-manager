@@ -10,6 +10,7 @@ templates = Jinja2Templates(directory="app/templates")
 
 # ---------- HTML ROUTES ----------
 
+
 @router.get("/mypage", response_class=HTMLResponse)
 def show_tasks(request: Request, db: Session = Depends(get_db)):
     tasks = db.query(models.Task).all()
