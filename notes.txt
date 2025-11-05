@@ -214,3 +214,28 @@ ENVIRONMENT=Production
 
 
 
+🔥 Step 1 — Push your project to GitHub
+
+Let’s start here — we’ll make sure your repo is clean and ready for CI/CD.
+
+✅ What you should do now:
+
+Create a new repo on GitHub, for example:
+
+fastapi-task-manager
+
+
+
+
+
+git init
+git add .
+git commit -m "Initial commit - FastAPI Task Manager with Docker"
+git branch -M main
+git remote add origin https://github.com/<your-username>/fastapi-task-manager.git
+git push -u origin main
+
+
+
+
+
