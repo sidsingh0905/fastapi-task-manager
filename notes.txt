@@ -1,0 +1,216 @@
+Installl PostgreSQL
+
+then 
+
+CREATE USER taskuser WITH PASSWORD 'TaskUser@123'; 
+CREATE DATABASE tasksdb OWNER taskuser; 
+GRANT ALL PRIVILEGES ON DATABASE tasksdb TO taskuser;
+
+
+
+
+2) pip install fastapi uvicorn sqlalchemy psycopg2-binary python-dotenv pydantic
+
+fastapi-task-manager/
+│
+├── venv/                   ← your virtual environment (auto-created)
+├── .env.development        ← environment variables
+├── app/
+│   ├── core/
+│   │   └── config.py
+│   └── db/
+│       ├── database.py
+│       └── init_db.py
+└── ...
+
+
+# ---- Base Image ----
+FROM python:3.11-slim AS base
+
+# ---- Set Environment ----
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# ---- Install dependencies ----
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# ---- Copy source ----
+COPY . .
+
+# ---- Expose port ----
+EXPOSE 8000
+
+# ---- Non-root user for security ----
+RUN useradd -m appuser
+USER appuser
+
+# ---- Start app ----
+CMD ["gunicorn", "app.main:app", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000", "--workers", "4"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# # Image for local
+# # Use official Python image
+# FROM python:3.12-slim
+
+# # Set working directory
+# WORKDIR /code
+
+# # Copy and install dependencies
+# COPY requirements.txt .
+# RUN pip install --no-cache-dir -r requirements.txt
+
+# # Copy the rest of the code
+# COPY . .
+
+# # Expose port
+# EXPOSE 8000
+
+# # Run FastAPI app
+# CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+
+
+# Image for production
+FROM python:3.12-slim
+
+ARG APP_USER=appuser
+RUN groupadd -r $APP_USER && useradd -r -g $APP_USER -m $APP_USER
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends gcc libpq-dev build-essential \
+  && pip install --no-cache-dir -r requirements.txt \
+  && apt-get remove -y gcc build-essential \
+  && apt-get autoremove -y \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY . .
+RUN chown -R $APP_USER:$APP_USER /app
+USER $APP_USER
+
+ENV PORT=8000
+CMD ["sh", "-c", "gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:${PORT}"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+dockercompose.yml
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    container_name: taskmanager-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - tasknet
+
+  web:
+    build: .
+    container_name: taskmanager-app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+    networks:
+      - tasknet
+
+networks:
+  tasknet:
+
+volumes:
+  postgres_data:
+
+dockerigonore
+
+venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.env
+.git
+.gitignore
+.idea
+.vscode
+*.db
+*.sqlite3
+dist
+build
+.dockerignore
+
+APP_NAME=FastAPI Task Manager
+POSTGRES_USER=taskuser
+POSTGRES_PASSWORD=TaskUser123
+POSTGRES_DB=tasksdb
+DATABASE_URL=postgresql://taskuser:TaskUser123@host.docker.internal:5432/tasksdb
+ENVIRONMENT=Production
+# DATABASE_URL=postgresql://taskuser:TaskUser123@db:5432/tasksdb
+# ENVIRONMENT=Production
+# For Docker use:
+# DATABASE_URL=postgresql://taskuser:TaskUser123@db:5432/tasksdb
+# ENVIRONMENT=production
+# For Local use:
+# DATABASE_URL=postgresql://taskuser:TaskUser123@localhost:5432/tasksdb
+
+
+
+| Environment                                       | Host in URL                   | Example                                                                                                                                       | When to Use                                                                                                                                                   |
+| ------------------------------------------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 🧑‍💻 **Local Development (no Docker)**           | `localhost`                   | `postgresql://taskuser:TaskUser123@localhost:5432/tasksdb`                                                                                    | When you run FastAPI **directly on your laptop** (via `uvicorn app.main:app --reload`) and connect to a **local Postgres** (installed or running in pgAdmin). |
+| 🐳 **Docker Run (app only)**                      | `host.docker.internal`        | `postgresql://taskuser:TaskUser123@host.docker.internal:5432/tasksdb`                                                                         | When your **app runs inside Docker**, but **Postgres runs on your host** (outside Docker). Docker container → your host machine (Windows/Mac).                |
+| ⚙️ **Docker Compose (app + db together)**         | `db`                          | `postgresql://taskuser:TaskUser123@db:5432/tasksdb`                                                                                           | When you run **both app and Postgres inside Docker Compose** (multi-container). The service name `db` comes from your `docker-compose.yml`.                   |
+| ☁️ **Cloud / Production (AWS, Kubernetes, etc.)** | `db-service` or real endpoint | `postgresql://taskuser:TaskUser123@db-service:5432/tasksdb` or `postgresql://taskuser:TaskUser123@mydb.xxxxxx.rds.amazonaws.com:5432/tasksdb` | When running in **AWS, Kubernetes, or production**. The host will be either a **Kubernetes Service** name or **AWS RDS endpoint**.                            |
+
+
+
+
+
