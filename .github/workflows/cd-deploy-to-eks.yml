@@ -1,0 +1,46 @@
+name: CD - Deploy to EKS
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: ap-south-1
+  CLUSTER_NAME: fastapi-prod-cluster
+  NAMESPACE: fastapi-app
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 🔐 Configure AWS credentials via OIDC
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_GITHUB_OIDC_ROLE_ARN }}
+
+      # ☸️ Update kubeconfig for EKS
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+
+      # 🚀 Deploy Kubernetes manifests
+      - name: Apply K8s manifests
+        run: |
+          kubectl get ns ${{ env.NAMESPACE }} || kubectl create ns ${{ env.NAMESPACE }}
+          kubectl apply -f k8s/ -n ${{ env.NAMESPACE }}
+
+      # ✅ Verify Deployment
+      - name: Verify Rollout
+        run: |
+          kubectl rollout status deployment/fastapi-deployment -n ${{ env.NAMESPACE }} --timeout=120s

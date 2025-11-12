@@ -1,0 +1,63 @@
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: fastapi-deployment
+#   namespace: fastapi-app
+# spec:
+#   replicas: 2
+#   selector:
+#     matchLabels:
+#       app: fastapi
+#   template:
+#     metadata:
+#       labels:
+#         app: fastapi
+#     spec:
+#       containers:
+#         - name: fastapi
+#           image: 443370675028.dkr.ecr.ap-south-1.amazonaws.com/fast-api-todo-ecr-repo:latest # e.g. 443370675028.dkr.ecr.ap-south-1.amazonaws.com/fastapi-task-manager:latest
+#           ports:
+#             - containerPort: 8000
+#           env:
+#            - name: APP_NAME
+#              value: "FastAPI Task Manager"
+#            - name: DATABASE_URL
+#              value: "postgresql://taskuser:TaskUser123@fastapi-rds.cpsgksy484d0.ap-south-1.rds.amazonaws.com:5432/tasksdb"
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-deployment
+  namespace: fastapi-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fastapi
+  template:
+    metadata:
+      labels:
+        app: fastapi
+    spec:
+      containers:
+        - name: fastapi
+          image: 443370675028.dkr.ecr.ap-south-1.amazonaws.com/fast-api-todo-ecr-repo:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: APP_NAME
+              value: "FastAPI Task Manager"
+            - name: DATABASE_URL
+              value: "postgresql://taskuser:TaskUser123@fastapi-rds.cpsgksy484d0.ap-south-1.rds.amazonaws.com:5432/tasksdb"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20

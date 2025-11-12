@@ -228,6 +228,8 @@ fastapi-task-manager
 
 
 
+
+
 git init
 git add .
 git commit -m "Initial commit - FastAPI Task Manager with Docker"
@@ -237,5 +239,105 @@ git push -u origin main
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+fastapi-task-manager
+├──app
+│   ├──api
+│   │   ├──__init__.py
+│   │   └──routes_tasks.py
+│   ├──core
+│   │   └──config.py
+│   ├──db
+│   │   ├──create_tables.py
+│   │   ├──database.py
+│   │   ├──init_db.py
+│   │   └──models.py
+│   ├──templates
+│   │   └──tasks.html
+│   ├──main.py
+│   └──schemas.py
+├──infra
+│   ├──envs
+│   ├──modules
+│   │   ├──eks
+│   │   │   ├──main.tf
+│   │   │   ├──outputs.tf
+│   │   │   └──variables.tf
+│   │   ├──rds
+│   │   │   ├──main.tf
+│   │   │   ├──outputs.tf
+│   │   │   └──variables.tf
+│   │   └──vpc
+│   │   │   ├──main.tf
+│   │   │   ├──outputs.tf
+│   │   │   └──variables.tf
+│   ├──.terraform
+│   │   ├──modules
+│   │   │   └──modules.json
+│   │   └──providers
+│   │   │   └──registry.terraform.io
+│   │   │   │   └──hashicorp
+│   │   │   │   │   └──aws
+│   │   │   │   │   │   └──5.100.0
+│   │   │   │   │   │   │   └──windows_386
+│   │   │   │   │   │   │   │   ├──LICENSE.txt
+│   │   │   │   │   │   │   │   └──terraform-provider-aws_v5.100.0_x5.exe
+│   ├──backend.tf
+│   ├──main.tf
+│   ├──outputs.tf
+│   ├──provider.tf
+│   ├──variables.tf
+│   └──.terraform.lock.hcl
+├──k8s
+│   ├──deployment.yml
+│   ├──ingress.yml
+│   └──service.yml
+├──.github
+│   └──workflows
+│   │   ├──cd-deploy-to-eks.yml
+│   │   └──ci-build-and-push.yml
+├──docker-compose.yml
+├──Dockerfile
+├──notes.txt
+├──requirements.txt
+├──.dockerignore
+└──.gitignore
+```
+
+
+Deploy alb ingress controller 
+
+
+
+| **Service Type**        | **How it Works**                                                                                                                               | **When to Use**                                                                                   | **Example Use Case**                                               |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| **ClusterIP** (default) | Exposes service **internally** inside the cluster. It gets a **virtual IP** (cluster-only). Other pods can access it, but it’s **not public**. | Use for **internal communication** or **when exposing via Ingress (ALB/Nginx)**.                  | `fastapi-service` behind an ALB Ingress.                           |
+| **NodePort**            | Opens a static port (e.g., `30080`) on **every node’s IP**. You can access the app via `<NodeIP>:<NodePort>`.                                  | Used for quick testing, or if an **external Load Balancer (like CLB/NLB)** will forward to nodes. | Exposing app without ingress, just to test via EC2 PublicIP:30080. |
+| **LoadBalancer**        | Integrates with the cloud (AWS, Azure, etc.) to create a **cloud Load Balancer (e.g., AWS ELB/NLB)** that forwards to NodePorts.               | Used when you want **direct external access** without Ingress (simpler setups).                   | Early-stage apps or quick demos where you don’t want Ingress.      |
+| **ExternalName**        | Acts like a DNS alias — maps to an external service name (e.g., an RDS endpoint).                                                              | Use for **connecting to external DBs / APIs** using a Kubernetes Service name.                    | Connecting to `fastapi-db.mycompany.com`.                          |
+
+
+
+
+You said:
+
+eksctl utils associate-iam-oidc-provider \\ --region ap-south-1 \\ --cluster fastapi-prod-cluster \\ --approve
+
+PS D:\Projects Learning\DEVOPS\fastapi-task-manager\infra> eksctl utils associate-iam-oidc-provider  --region ap-south-1  --cluster fastapi-prod-cluster  --approve      
+2025-11-13 00:53:12 [ℹ]  will create IAM Open ID Connect provider for cluster "fastapi-prod-cluster" in "ap-south-1"
+2025-11-13 00:53:13 [✔]  created IAM Open ID Connect provider for cluster "fastapi-prod-cluster" in "ap-south-1"
 
 
