@@ -341,3 +341,28 @@ PS D:\Projects Learning\DEVOPS\fastapi-task-manager\infra> eksctl utils associat
 2025-11-13 00:53:13 [✔]  created IAM Open ID Connect provider for cluster "fastapi-prod-cluster" in "ap-south-1"
 
 
+
+
+
+
+
+
+
+
+to get secrets from argo ns
+
+
+                          
+apiVersion: v1
+data:
+  password: RDhQaVZPQU9obG1XLXFnWg==
+kind: Secret
+metadata:
+  creationTimestamp: "2025-11-13T15:59:25Z"
+  name: argocd-initial-admin-secret
+  namespace: argocd
+  resourceVersion: "2227"
+  uid: cddfda5a-5c8d-4d70-9d4e-92a22781a9b5
+type: Opaque
+
+

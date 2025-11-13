@@ -30,7 +30,8 @@ app.include_router(routes_tasks.router)
 
 @app.get("/")
 def root():
-    return {"message": "Welcome to Task Manager! Visit /mypage to view tasks."}
+    # return {"message": "Welcome to Task Manager! Visit /mypage to view tasks."}
+    return {"message": "Welcome to Task Manager via ArgoCD!! Visit /mypage to view tasks"}
 
 
-print("test commit for ecr and github actions so that image can push to ecr")
+# print("test commit for ecr and github actions so that image can push to ecr")
