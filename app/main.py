@@ -3,21 +3,21 @@ from sqlalchemy import inspect
 from app.api import routes_tasks
 from app.db.database import Base, engine
 
-# ⭐ Prometheus instrumentation
+# Prometheus Instrumentation
 from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI(title="Task Manager API")
 
 
 @app.on_event("startup")
-def on_startup():
+async def startup():
     # Initialize Prometheus metrics
     Instrumentator().instrument(app).expose(app)
 
+    # DB table creation logic
     inspector = inspect(engine)
     existing_tables = inspector.get_table_names()
 
-    # List all tables defined in models
     defined_tables = Base.metadata.tables.keys()
 
     missing_tables = [t for t in defined_tables if t not in existing_tables]
@@ -30,7 +30,7 @@ def on_startup():
         print("✅ All tables already exist, skipping creation.")
 
 
-# Include routes
+# Routers
 app.include_router(routes_tasks.router)
 
 
