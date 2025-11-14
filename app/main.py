@@ -3,11 +3,18 @@ from sqlalchemy import inspect
 from app.api import routes_tasks
 from app.db.database import Base, engine
 
+# ⭐ Add Prometheus instrumentation import
+from prometheus_fastapi_instrumentator import Instrumentator
+
 app = FastAPI(title="Task Manager API")
 
 
 @app.on_event("startup")
 def on_startup():
+
+     # ⭐ Initialize Prometheus metrics BEFORE anything else
+    Instrumentator().instrument(app).expose(app)
+    
     inspector = inspect(engine)
     existing_tables = inspector.get_table_names()
 

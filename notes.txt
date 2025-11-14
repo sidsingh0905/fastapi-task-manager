@@ -366,3 +366,84 @@ metadata:
 type: Opaque
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+installing grepahana and Prometheus
+
+
+STEP 1 — Add Prometheus Helm repo
+
+Run:
+
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+✅ STEP 2 — Create monitoring namespace
+kubectl create namespace monitoring
+
+
+If it already exists, no problem — Kubernetes will say AlreadyExists.
+
+✅ STEP 3 — Install kube-prometheus-stack
+
+This installs:
+
+Prometheus
+
+Grafana
+
+Alertmanager
+
+Node exporter
+
+Kube-state-metrics
+
+All dashboards
+
+Run:
+
+helm install prometheus prometheus-community/kube-prometheus-stack -n monitoring
+
+
+This will take 1–2 minutes.
+
+✅ STEP 4 — Verify installation
+
+Run:
+
+kubectl get pods -n monitoring
+
+
+You should see pods like:
+
+grafana
+
+prometheus-kube-prometheus
+
+alertmanager
+
+node exporter
+
+operator
+
+All should be Running in a bit.
+
+🚀 Bro, run these steps and send me the output of:
+kubectl get pods -n monitoring
+
+
