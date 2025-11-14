@@ -3,7 +3,7 @@ from sqlalchemy import inspect
 from app.api import routes_tasks
 from app.db.database import Base, engine
 
-# ⭐ Add Prometheus instrumentation import
+# ⭐ Prometheus instrumentation
 from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI(title="Task Manager API")
@@ -11,10 +11,9 @@ app = FastAPI(title="Task Manager API")
 
 @app.on_event("startup")
 def on_startup():
-
-     # ⭐ Initialize Prometheus metrics BEFORE anything else
+    # Initialize Prometheus metrics
     Instrumentator().instrument(app).expose(app)
-    
+
     inspector = inspect(engine)
     existing_tables = inspector.get_table_names()
 
@@ -31,14 +30,10 @@ def on_startup():
         print("✅ All tables already exist, skipping creation.")
 
 
-# Include routers
+# Include routes
 app.include_router(routes_tasks.router)
 
 
 @app.get("/")
 def root():
-    # return {"message": "Welcome to Task Manager! Visit /mypage to view tasks."}
     return {"message": "Welcome to Task Manager via ArgoCD!! Visit /mypage to view tasks"}
-
-
-# print("test commit for ecr and github actions so that image can push to ecr")
