@@ -8,15 +8,15 @@ from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI(title="Task Manager API")
 
-# Routers must be included BEFORE instrumentation
+# Instrumentator MUST run BEFORE startup when using Gunicorn
+Instrumentator().instrument(app).expose(app)
+
+# Routers
 app.include_router(routes_tasks.router)
 
 
 @app.on_event("startup")
 async def startup():
-    # Initialize Prometheus metrics AFTER routers are loaded
-    Instrumentator().instrument(app).expose(app)
-
     # DB table creation logic
     inspector = inspect(engine)
     existing_tables = inspector.get_table_names()
