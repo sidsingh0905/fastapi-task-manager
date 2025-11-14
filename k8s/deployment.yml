@@ -93,8 +93,9 @@ spec:
     spec:
       containers:
         - name: fastapi
-          image: 443370675028.dkr.ecr.ap-south-1.amazonaws.com/fast-api-todo-ecr-repo:8b1f89bda156da167fd2701f912f4907eac415a9
-          # image: 443370675028.dkr.ecr.ap-south-1.amazonaws.com/fast-api-todo-ecr-repo:latest
+          image: 443370675028.dkr.ecr.ap-south-1.amazonaws.com/fast-api-todo-ecr-repo:latest
+          imagePullPolicy: Always
+
           ports:
             - containerPort: 8000
 
